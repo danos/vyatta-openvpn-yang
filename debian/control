@@ -1,0 +1,27 @@
+Source: vyatta-openvpn-yang
+Section: contrib/net
+Priority: optional
+Maintainer: Vyatta Package Maintainers <DL-vyatta-help@att.com>
+Build-Depends: debhelper (>= 9~), dh-yang,
+Standards-Version: 3.9.8
+
+Package: vyatta-interfaces-openvpn-v1-yang
+Architecture: all
+Depends: ${misc:Depends}, ${yang:Depends},
+Section: admin
+Description: vyatta-interfaces-openvpn-v1 module
+ The YANG module for vyatta-interfaces-openvpn-v1
+
+Package: vyatta-op-show-interfaces-openvpn-v1-yang
+Architecture: all
+Depends: ${misc:Depends}, ${yang:Depends}, vyatta-interfaces-base
+Description: vyatta-op-show-interfaces-openvpn-v1 module
+ Operational mode integration for viewing OpenVPN interface configuration
+
+Package: vyatta-resources-service-users-v1-yang
+Architecture: all
+Depends: ${misc:Depends}, ${yang:Depends}, vyatta-sssd-cfg, vyatta-cfg,
+Replaces: vyatta-sssd-cfg (<< 0.31)
+Conflicts: vyatta-sssd-cfg (<< 0.31)
+Description: vyatta-resources-service-users-v1 module
+ The YANG module for vyatta-resources-service-users

@@ -1,0 +1,201 @@
+module vyatta-resources-service-users-v1 {
+	namespace "urn:vyatta.com:mgmt:vyatta-resources-service-users:1";
+	prefix vyatta-resources-service-users-v1;
+
+	import vyatta-resources-v1 {
+		prefix resources;
+	}
+	import configd-v1 {
+		prefix configd;
+	}
+
+	organization "AT&T Inc.";
+	contact
+		"AT&T
+		 Postal: 208 S. Akard Street
+		         Dallas, TX 75202
+		 Web: www.att.com";
+
+	description
+		"Copyright (c) 2018, AT&T Intellectual Property.
+		 All rights reserved.
+
+		 Copyright (c) 2014-2016 by Brocade Communications Systems, Inc.
+		 All rights reserved.
+
+		 Redistribution and use in source and binary forms, with or without
+		 modification, are permitted provided that the following conditions
+		 are met:
+
+		 1. Redistributions of source code must retain the above copyright
+		    notice, this list of conditions and the following disclaimer.
+		 2. Redistributions in binary form must reproduce the above
+		    copyright notice, this list of conditions and the following
+		    disclaimer in the documentation and/or other materials provided
+		    with the distribution.
+		 3. Neither the name of the copyright holder nor the names of its
+		    contributors may be used to endorse or promote products derived
+		    from this software without specific prior written permission.
+
+		 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+		 'AS IS' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+		 LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+		 FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+		 COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+		 INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+		 BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+		 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+		 CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+		 LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+		 ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+		 POSSIBILITY OF SUCH DAMAGE.
+
+		 SPDX-License-Identifier: BSD-3-Clause
+
+		 The YANG module for vyatta-resources-service-users";
+
+	revision 2018-12-12 {
+		description "Minor update to remove $? from pattern.";
+	}
+
+	revision 2015-08-14 {
+		description "Initial revision of version 1.";
+	}
+
+	augment /resources:resources {
+		container service-users {
+			presence "true";
+			configd:help "Service-User management";
+			configd:end "/opt/vyatta/share/tmplscripts/resources/service-users/configd_end.sh";
+			list ldap {
+				configd:help "LDAP profile name";
+				configd:delete "/opt/vyatta/share/tmplscripts/resources/service-users/ldap/configd_delete.sh";
+				key "tagnode";
+				leaf tagnode {
+					type string;
+					configd:help "LDAP profile name";
+				}
+				leaf base-dn {
+					type string;
+					configd:help "Base Distinguished Name (Base DN) for authorization";
+				}
+				leaf search-filter {
+					type string;
+					configd:help "LDAP search filter for authorization";
+				}
+				leaf bind-dn {
+					type string;
+					configd:help "Bind DN user to authenticate against LDAP server";
+				}
+				leaf schema {
+					type string;
+					configd:help "LDAP schema standard";
+				}
+				leaf password {
+					type string;
+					configd:help "LDAP Bind Password";
+				}
+				container group {
+					presence "true";
+					configd:help "LDAP group tree options";
+					leaf base-dn {
+						type string;
+						configd:help "Base DN for group-based LDAP authorization";
+					}
+					leaf member-attribute {
+						type string;
+						configd:help "The member attribute to use for LDAP group-based authorization";
+					}
+				}
+				leaf url {
+					type string {
+						pattern "ldap://.*" {
+							error-message "Needs to start with ldap://";
+						}
+					}
+					configd:help "URL to LDAP server";
+				}
+				leaf follow-referrals {
+					type empty;
+					configd:help "Follow LDAP Referrals";
+				}
+				container tls {
+					presence "true";
+					configd:help "Transport Layer Security (TLS) options for LDAP server connection";
+					leaf reqcert {
+						type string;
+						configd:help "Request and perform check on TLS certificate of the LDAP server";
+					}
+					leaf cacert {
+						type string {
+							configd:syntax "/opt/vyatta/share/tmplscripts/resources/service-users/ldap/tls/cacert/configd_syntax1.cli";
+						}
+						configd:help "File containing certificate for Certificate Authority (CA)";
+					}
+				}
+			}
+			container local {
+				presence "true";
+				configd:help "Local service user management";
+				leaf-list group {
+					type string {
+						pattern "[a-zA-Z_][a-zA-Z0-9_-]*" {
+							configd:error-message "Invalid group name $VAR(@)";
+						}
+						configd:syntax "/opt/vyatta/share/tmplscripts/resources/service-users/local/group/configd_syntax1.cli";
+					}
+					ordered-by "user";
+					configd:help "Group for service-users";
+					configd:allowed "/opt/vyatta/share/tmplscripts/resources/service-users/local/group/configd_allowed.sh";
+					configd:delete "/opt/vyatta/share/tmplscripts/resources/service-users/local/group/configd_delete.sh";
+				}
+				list user {
+					configd:help "Service user account information";
+					configd:delete "/opt/vyatta/share/tmplscripts/resources/service-users/local/user/configd_delete.sh";
+					configd:validate "/opt/vyatta/share/tmplscripts/resources/service-users/local/user/configd_validate1.cli";
+					key "tagnode";
+					leaf tagnode {
+						type string;
+						configd:help "Service user account information";
+					}
+					container auth {
+						presence "true";
+						configd:help "Authentication password";
+						leaf plaintext-password {
+							type string;
+							configd:secret "true";
+							configd:help "Plaintext password for encryption";
+							configd:subst "/opt/vyatta/share/tmplscripts/resources/service-users/local/user/auth/plaintext-password/configd_subst1.cli";
+						}
+						leaf encrypted-password {
+							type string {
+								configd:syntax "/opt/vyatta/share/tmplscripts/resources/service-users/local/user/auth/encrypted-password/configd_syntax1.cli";
+							}
+							configd:help "Encrypted password";
+						}
+					}
+					leaf-list group {
+						type string {
+							configd:syntax "/opt/vyatta/share/tmplscripts/resources/service-users/local/user/group/configd_syntax1.cli";
+						}
+						ordered-by "user";
+						configd:help "Service-user group name";
+						configd:allowed "/opt/vyatta/share/tmplscripts/resources/service-users/local/user/group/configd_allowed.sh";
+					}
+					leaf lock {
+						type empty;
+						configd:help "Lock local service-user";
+					}
+					leaf full-name {
+						type string {
+							pattern "[^:]*" {
+								error-message "Cannot use ':' in full name";
+							}
+						}
+						configd:help "Full name of the user (use quotes for names with spaces)";
+					}
+				}
+			}
+		}
+	}
+}
