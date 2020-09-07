@@ -17,7 +17,7 @@ module vyatta-resources-service-users-v1 {
 		 Web: www.att.com";
 
 	description
-		"Copyright (c) 2018, AT&T Intellectual Property.
+		"Copyright (c) 2018, 2020, AT&T Intellectual Property.
 		 All rights reserved.
 
 		 Copyright (c) 2014-2016 by Brocade Communications Systems, Inc.
@@ -53,6 +53,10 @@ module vyatta-resources-service-users-v1 {
 		 SPDX-License-Identifier: BSD-3-Clause
 
 		 The YANG module for vyatta-resources-service-users";
+
+	revision 2020-09-07 {
+		description "Add configd:secret statements";
+	}
 
 	revision 2018-12-12 {
 		description "Minor update to remove $? from pattern.";
@@ -93,6 +97,7 @@ module vyatta-resources-service-users-v1 {
 				}
 				leaf password {
 					type string;
+					configd:secret "true";
 					configd:help "LDAP Bind Password";
 				}
 				container group {
@@ -171,6 +176,7 @@ module vyatta-resources-service-users-v1 {
 							type string {
 								configd:syntax "/opt/vyatta/share/tmplscripts/resources/service-users/local/user/auth/encrypted-password/configd_syntax1.cli";
 							}
+							configd:secret "true";
 							configd:help "Encrypted password";
 						}
 					}
